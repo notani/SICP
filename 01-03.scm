@@ -1,0 +1,11 @@
+(define (f x y z)
+  (define (square a)
+    (* a a))
+  (define (sum-of-square a b)
+    (+ (square a) (square b)))
+  (cond ((and (> x y) (> y z))
+         (sum-of-square x y))
+        ((and (> x y) (> z y))
+         (sum-of-square x z))
+        (else
+         (sum-of-square y z))))

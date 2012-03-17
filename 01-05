@@ -1,0 +1,13 @@
+Applicative Order
+
+Applicative Orderでは引数が手続きに渡される前に評価される。
+(test 0 (p))
+において、手続きpが実行され続けて無限ループに入る。
+
+
+Normal Order
+
+Normal Orderでは引数は手続きに未評価のまま渡され、必要になったときに評価される。
+(test 0 (p))
+では、手続きtestが呼び出され、条件式(= x 0)が真になることから0が返る。
+したがって(test 0 (p))は0を返す。
