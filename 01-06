@@ -1,0 +1,6 @@
+Applicative Orderでは引数が先に評価されるので、
+(new-if (good-enough? guess x)
+        guess
+        (sqrt-iter (improve guess x)
+                   x))
+と呼び出したときに手続きsqrt-iterが評価されてしまい、無限ループに入る。
