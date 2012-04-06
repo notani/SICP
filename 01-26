@@ -1,0 +1,2 @@
+Applicative OrderのSchemeでは、引数が先に評価される。
+squareの引数にexpmodをとった場合は、expmodの演算は一度であるが、Louis Reasonerのコードでは2つのexpmodを書いているので、演算が二度なされることになり、結局fast-expの効果が発揮されていない。

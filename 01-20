@@ -1,0 +1,40 @@
+Normal Order
+
+(gcd 206 40)
+(gcd 40 (remainder 206 40)) ;; (= 40 0) => #f
+(gcd (remainder 206 40) (remainder 40 (remainder 206 40))) ;; (= (remainder 206 40) 0) => #f
+
+(gcd (remainder 40 (remainder 206 40))
+     (remainder (remainder 206 40) (remainder 40 (remainder 206 40))))
+;; (= (remainder 40 (remainder 206 40)) 0) => #f
+
+(gcd (remainder (remainder 206 40) (remainder 40 (remainder 206 40)))
+     (remainder (remainder 40 (remainder 206 40))
+                (remainder (remainder 206 40) (remainder 40 (remainder 206 40)))))
+(remainder (remainder 206 40) (remainder 40 (remainder 206 40)))
+;; (= (remainder (remainder 206 40) (remainder 40 (remainder 206 40))) 0) => #f
+(remainder (remainder 206 40) (remainder 40 6))
+;; (= (remainder (remainder 40 (remainder 206 40))
+;;               (remainder (remainder 206 40) (remainder 40 (remainder 206 40)))) 0) => #t
+(remainder 6 4)
+2
+
+remainderが実行された回数は18
+
+
+
+
+Applicative Order
+
+(gcd 206 40)
+(gcd 40 (remainder 206 40)) ;; (= 40 0) => #f
+(gcd 40 6)
+(gcd 6 (remainder 40 6)) ;; (= 6 0) => #f
+(gcd 6 4)
+(gcd 4 (remainder 6 4)) ;; (= 4 0) => #f
+(gcd 4 2)
+(gcd 2 (remainder 4 2)) ;; (= 2 0) => #f
+(gcd 2 0)
+2 ;; (= 0 0) => #t
+
+remainderが実行された回数は4
