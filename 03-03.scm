@@ -1,0 +1,21 @@
+(define (make-account balance password)
+  (define (withdraw amount)
+    (if (>= balance amount)
+        (begin (set! balance (- balance amount))
+               balance)
+        "Insufficient funds"))
+
+  (define (deposit amount)
+    (set! balance (+ balance amount))
+    balance)
+
+  (define (validate-password input-password)
+    (eq? password input-password))
+
+  (define (dispatch input-password op)
+    (if (validate-password input-password)
+        (cond ((eq? op 'withdraw) withdraw)
+              ((eq? op 'deposit) deposit)
+              (else (error "Unknown request -- MAKE-ACCOUNT" op)))
+        (lambda (val) "Incorrect password")))
+  dispatch)
