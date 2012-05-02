@@ -1,0 +1,70 @@
+(define (make-deque) (cons '() '()))
+
+(define (front-ptr deque) (car deque))
+(define (rear-ptr deque) (cdr deque))
+(define (set-front-ptr! deque item) (set-car! deque item))
+(define (set-rear-ptr! deque item) (set-cdr! deque item))
+
+(define (empty-deque? deque) (null? (front-ptr deque)))
+
+(define (front-insert-deque! deque item)
+  (let ((new-elem (cons item (cons '() '()))))
+    (cond ((empty-deque? deque)
+           (begin (set-front-ptr! deque new-elem)
+                  (set-rear-ptr! deque new-elem)
+                  #t))
+          (else
+           (begin (set-cdr! (cdr new-elem) (front-ptr deque))
+                  (set-car! (cdr (front-ptr deque)) new-elem)
+                  (set-front-ptr! deque new-elem)
+                  #t)))))
+
+
+(define (rear-insert-deque! deque item)
+  (let ((new-elem (cons item (cons '() '()))))
+    (cond ((empty-deque? deque)
+           (begin (set-front-ptr! deque new-elem)
+                  (set-rear-ptr! deque new-elem)
+                  #t))
+          (else
+           (begin (set-car! (cdr new-elem) (rear-ptr deque))
+                  (set-cdr! (cdr (rear-ptr deque)) new-elem)
+                  (set-rear-ptr! deque new-elem)
+                  #t)))))
+
+(define (front-delete-deque! deque)
+  (cond ((empty-deque? deque)
+         (error "DELETE! called with an empty deque" deque))
+        (else       
+         (begin (set-front-ptr! deque (cddr (front-ptr deque)))
+                (if (not (null? (front-ptr deque)))
+                    (set-car! (cdr (front-ptr deque)) '()))
+                #t))))
+
+
+(define (rear-delete-deque! deque)
+  (cond ((empty-deque? deque)
+         (error "DELETE! called with an empty deque" deque))
+        (else
+         (begin (set-rear-ptr! deque (cadr (rear-ptr deque)))
+                (if (not (null? (rear-ptr deque)))
+                    (set-cdr! (cdr (rear-ptr deque)) '())
+                    (set-front-ptr! deque '()))
+                #t))))
+
+(define (print-deque deque)
+  (define (iter elem)
+    (if (null? (cddr elem))
+        (display (car elem))
+        (begin (display (car elem))
+               (display " ")
+               (iter (cddr elem)))))
+  (if (empty-deque? deque)
+      (begin (display "()")
+             (newline)
+             #t)
+      (begin (display "(")
+             (iter (front-ptr deque))
+             (display ")")
+             (newline)
+             #t)))
