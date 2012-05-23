@@ -1,0 +1,118 @@
+(define sum 0)
+
+(define (accum x)
+  (set! sum (+ x sum))
+  sum)
+
+> (define seq (stream-map accum (stream-enumerate-interval 1 20)))
+seq ;; (処理系によって異なる)
+sum = 0
+seq = (1 . (delay (stream-map accum (stream-enumerate-interval 2 20))))
+sum = 1
+
+> (define y (stream-filter even? seq))
+(stream-filter even? seq)
+(even? (stream-car seq)) ;; #f
+(stream-filter even? (stream-cdr seq)) ;; 1 + 2
+(even? (stream-car (stream-cdr seq))) ;; #f
+(stream-filter even? (stream-cdr
+                      (stream-cdr seq))) ;; 3 + 3
+(even? (stream-car (stream-cdr
+                    (stream-cdr seq)))) ;; #t
+(stream-cons 6
+             (delay (stream-filter even? (stream-cdr
+                                          (stream-cdr
+                                           (stream-cdr seq))))))
+y = (6 . (delay (stream-filter even? (stream-cdr
+                                      (stream-cdr
+                                       (stream-cdr seq)))))) ;; 4 .. 20
+sum = 6
+
+> (define z (stream-filter (lambda (x) (= (remainder x 5) 0))
+                           seq))
+(stream-filter (lambda (x) (= (remainder x 5) 0))
+               seq)
+
+((lambda (x) (= (remainder x 5) 0)) (stream-car seq)) ;; #f
+
+(stream-filter (lambda (x) (= (remainder x 5) 0))
+               (stream-cdr seq)) ;; sum <- 6 + 2
+
+((lambda (x) (= (remainder x 5) 0))
+ (stream-car (stream-cdr seq))) ;; (= (remainder 8 5) 0) == #f
+
+(stream-filter (lambda (x) (= (remainder x 5) 0))
+               (stream-cdr (stream-cdr seq))) ;; sum <- 8 + 3
+
+((lambda (x) (= (remainder x 5) 0))
+ (stream-car (stream-cdr
+              (stream-cdr seq)))) ;; (= (remainder 11 5) 0) == #f
+
+(stream-filter (lambda (x) (= (remainder x 5) 0))
+               (stream-cdr
+                (stream-cdr
+                 (stream-cdr seq)))) ;; sum <- 11 + 4
+
+((lambda (x) (= (remainder x 5) 0))
+ (stream-car (stream-cdr
+              (stream-cdr
+               (stream-cdr seq))))) ;; (= (remainder 15 5) 0) == #t
+
+z = (15 . (delay (stream-filter (lambda (x) (= (remainder x 5) 0))
+                                (stream-cdr
+                                 (stream-cdr
+                                  (stream-cdr
+                                   (stream-cdr seq))))))) ;; 5 .. 20
+sum = 15
+
+> (stream-ref y 7)
+(stream-ref y 7)
+(= 7 0) ;; #f
+(stream-ref (stream-cdr y) 6) ;; sum <- 15 + 4, 19 + 5, 6 .. 20
+(= 6 0) ;; #f
+(stream-ref (stream-cdr
+             (stream-cdr y)) 5) ;; sum <- 24 + 6, 7 .. 20
+(= 5 0) ;; #f
+(stream-ref (stream-cdr
+             (stream-cdr
+              (stream-cdr y))) 4) ;; sum <- 30 + 7, 37 + 8, 45 + 9, 10 .. 20
+(= 4 0) ;; #f
+(stream-ref (stream-cdr
+             (stream-cdr
+              (stream-cdr
+               (tream-cdr y)))) 3) ;; sum <- 54 + 10, 11 .. 20
+(= 3 0) ;; #f
+(stream-ref (stream-cdr
+             (stream-cdr
+              (stream-cdr
+               (stream-cdr
+                (stream-cdr y))))) 2) ;; sum <- 64 + 11, 75 + 12, 87 + 13, 14 .. 20
+(= 2 0) ;; #f
+(stream-ref (stream-cdr
+             (stream-cdr
+              (stream-cdr
+               (stream-cdr
+                (stream-cdr
+                 (stream-cdr y)))))) 1) ;; sum <- 100 + 14, 15 .. 20
+(= 1 0) ;; #f
+(stream-ref (stream-cdr
+             (stream-cdr
+              (stream-cdr
+               (stream-cdr
+                (stream-cdr
+                 (stream-cdr
+                  (stream-cdr y))))))) 0) ;; sum <- 114 + 15, 129 + 16, 145 + 17, 18 .. 20
+(= 0 0) ;; #t
+162
+
+> (display-stream z)
+15
+;; sum <- 162 + 5, 167 + 6, 173 + 7
+180
+;; sum <- 180 + 8, 188 + 9, 197 + 10, 207 + 11, 218 + 12
+230
+;; sum <- 230 + 13, 243 + 14, 257 + 15, 272 + 16, 288 + 17
+305
+;; sum <- 305 + 18, 323 + 19, 242 + 20
+
+sum = 362
