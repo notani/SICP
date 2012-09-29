@@ -1,0 +1,10 @@
+(define (unless condition usual-value exceptional-value)
+  (if condition exceptional-value usual-value))
+
+(define (factorial n)
+  (unless (= n 1)
+          (* n (factorial (- n 1)))
+          1))
+
+applicative-orderでは、引数は手続きの中身よりも先に評価される。したがって、nが1のときも(* n (factorial (- n 1)))が評価され、それにより呼び出された(factorial 0)でも(* n (factorial (- n 1)))が評価される。その後も同様である。無限ループになるので、この手続きは正しく動作しない。
+normal-orderでは、引数はあとで必要になったときに評価されるので、nが1のときは(* n (factorial (- n 1)))は不要だから評価されず、1が返される。したがって、正しく動作する。

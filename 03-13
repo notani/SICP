@@ -1,0 +1,5 @@
+# box-and-pointer表現
+図
+
+# (last-pair z)を実行した時のふるまい
+zはmake-cycleによりサイクリックな構造をしているので、last-pairを実行すると、cまで探査するとまたaに戻る、というのを無限に繰り返す。ゆえにlast-pairは求められない。

@@ -1,0 +1,146 @@
+# procを実行する理由
+procが実行されないと、after-delayが実行されず、その結果agendaに手続きが追加されない。したがって、直後にpropagateを実行しても、値が伝搬されない。
+よって、procをはじめに実行することが必要である。
+
+# half-adderのtrace
+以下は、片方の入力の値が1だった場合に、half-adderを実行した直後にpropagateしたときの出力がどうなるか確認したものである。
+sは1になるはずだが、procが実行されない場合ではpropagateによって値の伝搬が行われないのでsは0のままになっている。
+
+## procが実行される場合
+
+>(define input-1 (make-wire))
+ok
+
+>(define input-2 (make-wire))
+ok
+
+>(define s (make-wire))
+ok
+
+>(define c (make-wire))
+ok
+
+>(set-signal! input-1 1)
+done
+
+>(half-adder input-1 input-2 s c)
+  1> (half-adder #<function dispatch> #<function dispatch> #<function dispatch> nn#<function dispatch>)
+    2> (half-adder #<function dispatch> #<function dispatch> #<function dispatch> #<function dispatch>)
+      3> (or-gate #<function dispatch> #<function dispatch> #<function dispatch>)
+        4> (or-gate #<function dispatch> #<function dispatch> #<function dispatch>)
+          5> (after-delay 5 #<function>)
+            6> (after-delay 5 #<function>)
+            <6 (after-delay ((10 (#<function>) #<function>)))
+          <5 (after-delay ((10 (#<function>) #<function>)))
+          5> (after-delay 5 #<function>)
+            6> (after-delay 5 #<function>)
+            <6 (after-delay ((#<function> #<function>) #<function>))
+          <5 (after-delay ((#<function> #<function>) #<function>))
+        <4 (or-gate ok)
+      <3 (or-gate ok)
+      3> (and-gate #<function dispatch> #<function dispatch> #<function dispatch>)
+        4> (and-gate #<function dispatch> #<function dispatch> #<function dispatch>)
+          5> (after-delay 3 #<function>)
+            6> (after-delay 3 #<function>)
+            <6 (after-delay ((8 (#<function>) #<function>) (10 (#<function> #<function>) #<function>)))
+          <5 (after-delay ((8 (#<function>) #<function>) (10 (#<function> #<function>) #<function>)))
+          5> (after-delay 3 #<function>)
+            6> (after-delay 3 #<function>)
+            <6 (after-delay ((#<function> #<function>) #<function>))
+          <5 (after-delay ((#<function> #<function>) #<function>))
+        <4 (and-gate ok)
+      <3 (and-gate ok)
+      3> (inverter #<function dispatch> #<function dispatch>)
+        4> (inverter #<function dispatch> #<function dispatch>)
+          5> (after-delay 2 #<function>)
+            6> (after-delay 2 #<function>)
+            <6 (after-delay ((7 (#<function>) #<function>) (8 (#<function> #<function>) #<function>) (10 (#<function> #<function>) #<function>)))
+          <5 (after-delay ((7 (#<function>) #<function>) (8 (#<function> #<function>) #<function>) (10 (#<function> #<function>) #<function>)))
+        <4 (inverter ok)
+      <3 (inverter ok)
+      3> (and-gate #<function dispatch> #<function dispatch> #<function dispatch>)
+        4> (and-gate #<function dispatch> #<function dispatch> #<function dispatch>)
+          5> (after-delay 3 #<function>)
+            6> (after-delay 3 #<function>)
+            <6 (after-delay ((#<function> #<function> #<function>) #<function>))
+          <5 (after-delay ((#<function> #<function> #<function>) #<function>))
+          5> (after-delay 3 #<function>)
+            6> (after-delay 3 #<function>)
+            <6 (after-delay ((#<function> #<function> #<function> #<function>) #<function>))
+          <5 (after-delay ((#<function> #<function> #<function> #<function>) #<function>))
+        <4 (and-gate ok)
+      <3 (and-gate ok)
+    <2 (half-adder ok)
+  <1 (half-adder ok)
+ok
+
+>(get-signal s)
+0
+
+>(propagate)
+  1> (propagate)
+    2> (after-delay 3 #<function>)
+      3> (after-delay 3 #<function>)
+      <3 (after-delay ((#<function> #<function> #<function>) #<function>))
+    <2 (after-delay ((#<function> #<function> #<function>) #<function>))
+  1: (propagate)
+  1: (propagate)
+  1: (propagate)
+  1: (propagate)
+  1: (propagate)
+    2> (after-delay 3 #<function>)
+      3> (after-delay 3 #<function>)
+      <3 (after-delay ((13 (#<function>) #<function>)))
+    <2 (after-delay ((13 (#<function>) #<function>)))
+  1: (propagate)
+  1: (propagate)
+  1: (propagate)
+  1: (propagate)
+  <1 (propagate done)
+done
+
+>(get-signal s)
+1
+;; 正しい
+
+
+## procが実行されない場合
+
+>(define input-1 (make-wire))
+ok
+
+>(define input-2 (make-wire))
+ok
+
+>(define s (make-wire))
+ok
+
+>(define c (make-wire))
+ok
+
+>(set-signal! input-1 1)
+done
+
+>(half-adder input-1 input-2 s c)
+  1> (half-adder #<function dispatch> #<function dispatch> #<function dispatch> #<function dispatch>)
+    2> (or-gate #<function dispatch> #<function dispatch> #<function dispatch>)
+    <2 (or-gate ok)
+    2> (and-gate #<function dispatch> #<function dispatch> #<function dispatch>)
+    <2 (and-gate ok)
+    2> (inverter #<function dispatch> #<function dispatch>)
+    <2 (inverter ok)
+    2> (and-gate #<function dispatch> #<function dispatch> #<function dispatch>)
+    <2 (and-gate ok)
+  <1 (half-adder ok)
+ok
+
+>(get-signal s)
+0
+
+>(propagate)
+  1> (propagate)
+  <1 (propagate done)
+done
+
+>(get-signal s)
+0

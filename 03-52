@@ -1,3 +1,5 @@
+;; 以下はメモ化が実装されていない場合
+
 (define sum 0)
 
 (define (accum x)
